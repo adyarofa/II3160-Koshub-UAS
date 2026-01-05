@@ -20,6 +20,7 @@ export default function AccommodationsPage() {
     end_date: '',
   });
   const [bookingLoading, setBookingLoading] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   useEffect(() => {
     fetchAccommodations();
@@ -60,10 +61,13 @@ export default function AccommodationsPage() {
         start_date: bookingDates.start_date,
         end_date: bookingDates.end_date,
       });
-      alert('Booking created successfully! Check your dashboard for payment.');
+      setShowSuccessModal(true);
       setSelectedAccommodation(null);
       setBookingDates({ start_date: '', end_date: '' });
-      router.push('/dashboard');
+      setTimeout(() => {
+        setShowSuccessModal(false);
+        router.push('/dashboard');
+      }, 2000);
     } catch (err: any) {
       alert(err.response?.data?.message || 'Failed to create booking');
     } finally {
@@ -254,6 +258,27 @@ export default function AccommodationsPage() {
                 {bookingLoading ? 'Booking...' : 'Confirm Booking'}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Booking Success Modal */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-lg p-8 max-w-sm w-full text-center animate-fade-in">
+            <div className="flex items-center justify-center mb-4">
+              <span className="inline-block bg-green-100 text-green-600 rounded-full p-3">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+              </span>
+            </div>
+            <h3 className="text-2xl font-bold mb-2 text-green-700">Booking Successful!</h3>
+            <p className="text-gray-700 mb-4">Check your dashboard for payment.</p>
+            <button
+              onClick={() => { setShowSuccessModal(false); router.push('/dashboard'); }}
+              className="mt-2 px-6 py-2 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-colors"
+            >
+              Go to Dashboard
+            </button>
           </div>
         </div>
       )}
