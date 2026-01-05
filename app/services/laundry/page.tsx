@@ -38,7 +38,8 @@ export default function LaundryPage() {
       console.log('Fetching bookings for user:', user);
       const data = await bookingApi.getById(user?.id!);
       console.log('Ini loh datanya', data);
-      const successBookings = data.filter((b: Booking) => b.status === 'SUCCESS');
+      const dataArray = Array.isArray(data) ? data : [data];
+      const successBookings = dataArray.filter((b: Booking) => b.status === 'SUCCESS');
       setBookings(successBookings);
       if (successBookings.length > 0) {
         setSelectedBooking(successBookings[0].booking_id);
