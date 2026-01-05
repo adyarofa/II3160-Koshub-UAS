@@ -197,7 +197,8 @@ export const laundryApi = {
     return data;
   },
 
-  createOrder: async (laundryData: CreateLaundryData & { booking_id: number }): Promise<LaundryService> => {
+  createOrder: async (laundryData: CreateLaundryData & { booking_id: number } ): Promise<LaundryService> => {
+    console.log('Creating laundry order with data:', laundryData);
     const { data } = await livingSupportAxios.post('/api/laundry', laundryData);
     return data;
   },

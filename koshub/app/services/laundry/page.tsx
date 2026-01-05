@@ -35,11 +35,14 @@ export default function LaundryPage() {
 
   const fetchBookings = async () => {
     try {
-      const data = await bookingApi.getMyBookings();
+      console.log('Fetching bookings for user:', user);
+      const data = await bookingApi.getById(user?.id!);
+      console.log('Ini loh datanya', data);
       const successBookings = data.filter((b: Booking) => b.status === 'SUCCESS');
       setBookings(successBookings);
       if (successBookings.length > 0) {
         setSelectedBooking(successBookings[0].booking_id);
+        console.log('Selected booking set to:', successBookings[0].booking_id);
       }
     } catch (err) {
       console.error('Failed to fetch bookings:', err);
