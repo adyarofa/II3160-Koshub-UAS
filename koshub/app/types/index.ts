@@ -1,9 +1,8 @@
+import { UUID } from "crypto";
+
 export interface User {
-  id: string;
+  id: UUID;
   email: string;
-  name?: string;
-  membership_level?: 'BASIC' | 'SILVER' | 'GOLD';
-  discount_rate?: number;
 }
 
 export interface AuthResponse {

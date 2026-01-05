@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../lib/AuthContext';
-import { bookingApi } from '../lib/api';
+import { bookingApi, userApi } from '../lib/api';
 import type { Booking } from '../types';
 import { Building2, Calendar, DollarSign, CheckCircle, Clock, XCircle } from 'lucide-react';
 import { format } from 'date-fns';
@@ -12,6 +12,9 @@ export default function DashboardPage() {
   const { isAuthenticated, user } = useAuth();
   const router = useRouter();
   const [bookings, setBookings] = useState<Booking[]>([]);
+  const [userName, setUserName] = useState<string>('');
+  const [discountRate, setDiscountRate] = useState<number | undefined>(undefined);
+  const [membershipLevel, setMembershipLevel] = useState<string>('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -19,17 +22,38 @@ export default function DashboardPage() {
       router.push('/auth/login');
       return;
     }
+    fetchUserDetails();
     fetchBookings();
   }, [isAuthenticated, router]);
 
+  const fetchUserDetails = async () => {
+    try {
+      const userData = await userApi.getById(user?.id);
+      setUserName(userData.name || '');
+      setMembershipLevel(userData.membership_level || '');
+      setDiscountRate(userData.discount_rate);
+    } catch (error) {
+      console.error('Failed to fetch user details:', error);
+    }
+  };
+
   const fetchBookings = async () => {
     try {
-      const data = await bookingApi.getAll();
-      setBookings(data);
+      const data = await bookingApi.getById(user.id);
+      setBookings(Array.isArray(data) ? data : [data]);
     } catch (error) {
       console.error('Failed to fetch bookings:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleUpdateBookingStatus = async (bookingId: number, status: 'SUCCESS' | 'CANCELLED', accommodationId: number) => {
+    try {
+      await bookingApi.updateStatus(bookingId, status, accommodationId);
+      fetchBookings();
+    } catch (error) {
+      alert('Failed to update booking status');
     }
   };
 
@@ -71,17 +95,17 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                Welcome back, {user?.name || 'User'}!
+                Welcome back, {userName}!
               </h1>
               <p className="text-gray-600">Manage your bookings and services</p>
             </div>
             <div className="text-right">
               <div className="inline-block bg-primary-100 text-primary-800 px-6 py-3 rounded-lg">
                 <p className="text-sm font-medium">Membership Level</p>
-                <p className="text-2xl font-bold">{user?.membership_level || 'BASIC'}</p>
-                {user?.discount_rate && user.discount_rate > 0 && (
+                <p className="text-2xl font-bold">{membershipLevel}</p>
+                {discountRate && discountRate > 0 && (
                   <p className="text-sm">
-                    {(user.discount_rate * 100)}% discount on bookings
+                    {(discountRate * 100)}% discount on bookings
                   </p>
                 )}
               </div>
@@ -223,9 +247,20 @@ export default function DashboardPage() {
                         <span className="font-semibold">Action Required:</span> Complete your
                         payment to confirm this booking.
                       </p>
-                      <button className="text-sm text-primary-600 font-semibold hover:text-primary-700">
-                        Proceed to Payment →
-                      </button>
+                      <div className="flex gap-4">
+                        <button
+                          className="px-6 py-2 rounded-lg bg-primary-600 text-white font-semibold shadow hover:bg-primary-700 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-400"
+                          onClick={() => handleUpdateBookingStatus(booking.booking_id, 'SUCCESS', booking.accommodation_id)}
+                        >
+                          Pay
+                        </button>
+                        <button
+                          className="px-6 py-2 rounded-lg bg-red-100 text-red-700 font-semibold shadow hover:bg-red-200 transition-colors border border-red-300 focus:outline-none focus:ring-2 focus:ring-red-300"
+                          onClick={() => handleUpdateBookingStatus(booking.booking_id, 'CANCELLED', booking.accommodation_id)}
+                        >
+                          Cancel
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>

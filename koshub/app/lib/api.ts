@@ -3,6 +3,7 @@ import type {
   AuthResponse,
   LoginCredentials,
   RegisterData,
+  User,
   Accommodation,
   Booking,
   CreateBookingData,
@@ -13,6 +14,7 @@ import type {
   CateringMenu,
   Notification,
 } from '../types';
+import { UUID } from 'crypto';
 
 // API Base URLs
 const ACCOMMODATION_API = process.env.NEXT_PUBLIC_ACCOMMODATION_API || 'http://localhost:3000';
@@ -57,6 +59,7 @@ const addAuthInterceptor = (apiInstance: any) => {
       return response;
     },
     (error: any) => {
+      console.log('FULL ERROR OBJECT:', error.response);
       console.error('API Error:', {
         url: error.config?.url,
         status: error.response?.status,
@@ -107,6 +110,14 @@ export const authApi = {
   },
 };
 
+// ============= User API =============
+export const userApi = {
+  getById: async (userId: UUID): Promise<User> => {
+    const { data } = await accommodationAxios.get(`/users/${userId}`);
+    return data;
+  },
+};
+
 // ============= Accommodation API =============
 export const accommodationApi = {
   getAll: async (): Promise<Accommodation[]> => {
@@ -141,7 +152,7 @@ export const bookingApi = {
     return data;
   },
 
-  getById: async (id: number): Promise<Booking> => {
+  getById: async (id: UUID): Promise<Booking> => {
     const { data } = await accommodationAxios.get(`/bookings/${id}`);
     return data;
   },
