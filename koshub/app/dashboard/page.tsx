@@ -27,8 +27,9 @@ export default function DashboardPage() {
   }, [isAuthenticated, router]);
 
   const fetchUserDetails = async () => {
+    if (!user?.id) return;
     try {
-      const userData = await userApi.getById(user?.id);
+      const userData = await userApi.getById(user.id);
       setUserName(userData.name || '');
       setMembershipLevel(userData.membership_level || '');
       setDiscountRate(userData.discount_rate);
@@ -38,6 +39,7 @@ export default function DashboardPage() {
   };
 
   const fetchBookings = async () => {
+    if (!user?.id) return;
     try {
       const data = await bookingApi.getById(user.id);
       setBookings(Array.isArray(data) ? data : [data]);

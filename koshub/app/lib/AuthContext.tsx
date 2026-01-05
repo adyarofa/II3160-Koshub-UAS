@@ -5,7 +5,7 @@ import { authApi } from './api';
 import type { User, LoginCredentials, RegisterData } from '../types';
 
 interface AuthContextType {
-  user: User;
+  user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (credentials: LoginCredentials) => Promise<void>;

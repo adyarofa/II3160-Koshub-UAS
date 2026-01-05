@@ -152,6 +152,11 @@ export const bookingApi = {
     return data;
   },
 
+  getMyBookings: async (): Promise<Booking[]> => {
+    const { data } = await accommodationAxios.get('/bookings');
+    return data;
+  },
+
   getById: async (id: UUID): Promise<Booking> => {
     const { data } = await accommodationAxios.get(`/bookings/${id}`);
     return data;
@@ -192,6 +197,11 @@ export const laundryApi = {
     return data;
   },
 
+  createOrder: async (laundryData: CreateLaundryData & { booking_id: number }): Promise<LaundryService> => {
+    const { data } = await livingSupportAxios.post('/api/laundry', laundryData);
+    return data;
+  },
+
   create: async (laundryData: CreateLaundryData): Promise<LaundryService> => {
     const { data } = await livingSupportAxios.post('/api/laundry', laundryData);
     return data;
@@ -224,9 +234,14 @@ export const laundryApi = {
 
 // ============= Catering Service API =============
 export const cateringApi = {
-  getMenu: async (): Promise<{ message: string; menu: CateringMenu }> => {
-    const { data} = await livingSupportAxios.get('/api/catering/menu');
-    return data;
+  getMenu: async (): Promise<CateringMenu> => {
+    console.log('Fetching menu from:', LIVING_SUPPORT_API + '/api/catering/menu');
+    const { data } = await livingSupportAxios.get('/api/catering/menu');
+    console.log('Raw menu response:', data);
+    // If backend returns { menu: {...} }, extract it
+    const menu = data.menu || data;
+    console.log('Extracted menu:', menu);
+    return menu;
   },
 
   getAll: async (): Promise<CateringOrder[]> => {
@@ -236,6 +251,11 @@ export const cateringApi = {
 
   getById: async (id: number): Promise<CateringOrder> => {
     const { data } = await livingSupportAxios.get(`/api/catering/${id}`);
+    return data;
+  },
+
+  createOrder: async (cateringData: CreateCateringData & { booking_id: number }): Promise<CateringOrder> => {
+    const { data } = await livingSupportAxios.post('/api/catering', cateringData);
     return data;
   },
 
